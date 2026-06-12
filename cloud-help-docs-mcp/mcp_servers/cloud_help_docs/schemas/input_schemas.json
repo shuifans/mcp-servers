@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cloud-help-docs-mcp.local/schemas/input_schemas.json",
+  "title": "cloud-help-docs-mcp tool input schemas",
+  "description": "Input JSON Schemas for the three tools exposed by cloud-help-docs-mcp.",
+  "type": "object",
+  "definitions": {
+    "provider": {
+      "type": "string",
+      "description": "Cloud provider name.",
+      "enum": ["aliyun", "volcengine", "tencent_cloud", "aws", "azure", "gcp"]
+    },
+    "search_cloud_docs": {
+      "type": "object",
+      "title": "search_cloud_docs input",
+      "properties": {
+        "provider": { "$ref": "#/definitions/provider" },
+        "query": {
+          "type": "string",
+          "description": "Natural language search query.",
+          "minLength": 1
+        },
+        "product": {
+          "type": ["string", "null"],
+          "description": "Optional product name hint, e.g. 'ECS', 'S3', 'BigQuery'."
+        },
+        "top_k": {
+          "type": "integer",
+          "description": "Maximum number of candidates to return.",
+          "minimum": 1,
+          "maximum": 20,
+          "default": 5
+        }
+      },
+      "required": ["provider", "query"],
+      "additionalProperties": false
+    },
+    "read_cloud_doc": {
+      "type": "object",
+      "title": "read_cloud_doc input",
+      "properties": {
+        "provider": { "$ref": "#/definitions/provider" },
+        "url": {
+          "type": "string",
+          "description": "HTTPS URL of a cloud provider doc within the provider's whitelist.",
+          "minLength": 1,
+          "pattern": "^https://"
+        },
+        "force_refresh": {
+          "type": "boolean",
+          "description": "If true, bypass cache and re-fetch.",
+          "default": false
+        }
+      },
+      "required": ["provider", "url"],
+      "additionalProperties": false
+    },
+    "retrieve_cloud_docs": {
+      "type": "object",
+      "title": "retrieve_cloud_docs input",
+      "properties": {
+        "provider": { "$ref": "#/definitions/provider" },
+        "query": {
+          "type": "string",
+          "description": "Natural language query.",
+          "minLength": 1
+        },
+        "product": {
+          "type": ["string", "null"],
+          "description": "Optional product name hint."
+        },
+        "top_k_chunks": {
+          "type": "integer",
+          "description": "Maximum number of evidence chunks to return.",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 5
+        }
+      },
+      "required": ["provider", "query"],
+      "additionalProperties": false
+    }
+  }
+}

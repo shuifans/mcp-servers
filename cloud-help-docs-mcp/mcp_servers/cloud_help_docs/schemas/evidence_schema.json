@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cloud-help-docs-mcp.local/schemas/evidence_schema.json",
+  "title": "Evidence",
+  "description": "A citable evidence chunk produced by cloud-help-docs-mcp. Every key fact in the agent's final answer must trace back to one or more Evidence objects.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique evidence id, format ev_{short_uuid}.",
+      "pattern": "^ev_[A-Za-z0-9]+$"
+    },
+    "source_type": {
+      "type": "string",
+      "description": "Type of the source (e.g. official_doc, blog, internal_note).",
+      "enum": ["official_doc", "official_blog", "internal_note", "user_input", "other"],
+      "default": "official_doc"
+    },
+    "provider": {
+      "type": "string",
+      "description": "Cloud provider that owns the source (aliyun, volcengine, tencent_cloud, aws, azure, gcp)."
+    },
+    "title": {
+      "type": "string",
+      "description": "Doc / page title."
+    },
+    "url": {
+      "type": "string",
+      "description": "Canonical URL of the source.",
+      "format": "uri",
+      "pattern": "^https://"
+    },
+    "excerpt": {
+      "type": "string",
+      "description": "200-500 character relevant slice from the source content."
+    },
+    "retrieved_at": {
+      "type": "string",
+      "description": "ISO-8601 timestamp when the evidence was fetched.",
+      "format": "date-time"
+    },
+    "published_at": {
+      "type": ["string", "null"],
+      "description": "ISO-8601 publication time if known.",
+      "format": "date-time"
+    },
+    "confidence": {
+      "type": "string",
+      "description": "Confidence bucket derived from the search score.",
+      "enum": ["high", "medium", "low"],
+      "default": "medium"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Free-form metadata, e.g. product, doc_language, search_score, tool.",
+      "additionalProperties": true,
+      "properties": {
+        "product": { "type": "string" },
+        "doc_language": { "type": "string" },
+        "tool": { "type": "string" },
+        "search_score": { "type": "number" }
+      }
+    }
+  },
+  "required": [
+    "id",
+    "source_type",
+    "provider",
+    "title",
+    "url",
+    "excerpt",
+    "retrieved_at",
+    "confidence"
+  ],
+  "additionalProperties": false
+}

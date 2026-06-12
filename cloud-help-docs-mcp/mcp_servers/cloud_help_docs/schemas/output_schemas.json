@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cloud-help-docs-mcp.local/schemas/output_schemas.json",
+  "title": "cloud-help-docs-mcp tool output schemas",
+  "description": "Output JSON Schemas for the three tools exposed by cloud-help-docs-mcp.",
+  "type": "object",
+  "definitions": {
+    "error_payload": {
+      "type": "object",
+      "properties": {
+        "error": { "type": "string" },
+        "message": { "type": "string" },
+        "allowed_domains": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "status_code": { "type": ["integer", "null"] }
+      },
+      "required": ["error", "message"],
+      "additionalProperties": true
+    },
+    "search_cloud_docs": {
+      "type": "object",
+      "title": "search_cloud_docs output",
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "url": { "type": "string", "format": "uri" },
+              "title": { "type": "string" },
+              "snippet": { "type": "string" },
+              "score": { "type": ["number", "null"] }
+            },
+            "required": ["url", "title"],
+            "additionalProperties": true
+          }
+        },
+        "total_found": { "type": "integer", "minimum": 0 },
+        "query_used": { "type": "string" },
+        "provider": { "type": "string" },
+        "error": { "$ref": "#/definitions/error_payload" }
+      },
+      "required": ["results", "total_found", "query_used", "provider"],
+      "additionalProperties": false
+    },
+    "read_cloud_doc": {
+      "type": "object",
+      "title": "read_cloud_doc output",
+      "oneOf": [
+        {
+          "properties": {
+            "url": { "type": "string" },
+            "title": { "type": "string" },
+            "content": { "type": "string" },
+            "content_format": { "type": "string", "enum": ["markdown", "text", "html"] },
+            "content_length": { "type": "integer", "minimum": 0 },
+            "cache_status": { "type": "string", "enum": ["hit", "miss", "refresh"] },
+            "retrieved_at": { "type": "string", "format": "date-time" },
+            "fallback_used": { "type": "boolean" },
+            "provider": { "type": "string" }
+          },
+          "required": [
+            "url",
+            "content",
+            "content_format",
+            "content_length",
+            "cache_status",
+            "retrieved_at",
+            "fallback_used",
+            "provider"
+          ],
+          "additionalProperties": false
+        },
+        { "$ref": "#/definitions/error_payload" }
+      ]
+    },
+    "retrieve_cloud_docs": {
+      "type": "object",
+      "title": "retrieve_cloud_docs output",
+      "properties": {
+        "evidences": {
+          "type": "array",
+          "items": { "$ref": "evidence_schema.json#" }
+        },
+        "query_used": { "type": "string" },
+        "total_sources_searched": { "type": "integer", "minimum": 0 },
+        "total_chunks_returned": { "type": "integer", "minimum": 0 },
+        "provider": { "type": "string" },
+        "error": { "$ref": "#/definitions/error_payload" }
+      },
+      "required": [
+        "evidences",
+        "query_used",
+        "total_sources_searched",
+        "total_chunks_returned",
+        "provider"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

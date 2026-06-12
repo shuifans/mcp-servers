@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sa-cloud-advisory-toolkit.local/schemas/aliyun-help-docs/input_schemas.json",
+  "title": "aliyun-help-docs-mcp tool input schemas",
+  "description": "Input JSON Schemas for the three tools exposed by aliyun-help-docs-mcp.",
+  "type": "object",
+  "definitions": {
+    "search_aliyun_docs": {
+      "type": "object",
+      "title": "search_aliyun_docs input",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Natural language search query.",
+          "minLength": 1
+        },
+        "product": {
+          "type": ["string", "null"],
+          "description": "Optional product name hint, e.g. 'ECS', 'OSS'."
+        },
+        "top_k": {
+          "type": "integer",
+          "description": "Maximum number of candidates to return.",
+          "minimum": 1,
+          "maximum": 20,
+          "default": 5
+        }
+      },
+      "required": ["query"],
+      "additionalProperties": false
+    },
+    "read_aliyun_doc": {
+      "type": "object",
+      "title": "read_aliyun_doc input",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "HTTPS URL of an Aliyun help doc within the configured whitelist.",
+          "minLength": 1,
+          "pattern": "^https://"
+        },
+        "force_refresh": {
+          "type": "boolean",
+          "description": "If true, bypass cache and re-fetch.",
+          "default": false
+        }
+      },
+      "required": ["url"],
+      "additionalProperties": false
+    },
+    "retrieve_aliyun_docs": {
+      "type": "object",
+      "title": "retrieve_aliyun_docs input",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Natural language query.",
+          "minLength": 1
+        },
+        "product": {
+          "type": ["string", "null"],
+          "description": "Optional product name hint."
+        },
+        "top_k_chunks": {
+          "type": "integer",
+          "description": "Maximum number of evidence chunks to return.",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 5
+        }
+      },
+      "required": ["query"],
+      "additionalProperties": false
+    }
+  }
+}
