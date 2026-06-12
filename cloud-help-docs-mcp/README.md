@@ -75,7 +75,7 @@ cp .env.example .env
 
 | 环境变量 | 必需 | 默认值 | 说明 |
 |---------|------|--------|------|
-| `IQS_API_KEY` | 是 | `""` | IQS API Bearer Token |
+| `IQS_API_KEY` | 是 | `""` | IQS API Bearer Token（[申请](https://iqs.console.aliyun.com/) / [API 文档](https://iqs.console.aliyun.com/overview)） |
 | `IQS_BASE_URL` | 否 | `https://cloud-iqs.aliyuncs.com` | IQS 服务端点 |
 | `CACHE_DIR` | 否 | `./data/cache` | 缓存目录（各 provider 独立 SQLite 文件） |
 | `DOC_CACHE_TTL_HOURS` | 否 | `24` | 缓存有效期（小时） |

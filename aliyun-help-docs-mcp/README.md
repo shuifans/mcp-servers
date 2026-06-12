@@ -15,7 +15,7 @@
 ## 前置条件
 
 - Python >= 3.10
-- 阿里云 IQS API Key（[申请地址](https://iqs.console.aliyun.com/)）
+- 阿里云 IQS API Key（[申请地址](https://iqs.console.aliyun.com/) | [API 文档](https://iqs.console.aliyun.com/overview)）
 
 ## 安装
 
