@@ -1,6 +1,6 @@
 # aliyun-help-docs-mcp
 
-一个基于 [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) 的服务，用于搜索和读取阿里云官方帮助文档。通过阿里云 IQS（Intelligent Query Service）API 实现文档检索、全文读取和证据提取。
+一个基于 [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) 的服务，用于搜索和读取阿里云官方帮助文档。通过阿里云 [IQS（Intelligent Query Service）](https://iqs.console.aliyun.com/) API 实现文档检索、全文读取和证据提取。
 
 ## 功能
 
@@ -15,7 +15,7 @@
 ## 前置条件
 
 - Python >= 3.10
-- 阿里云 IQS API Key（[申请地址](https://bailian.console.aliyun.com/)）
+- 阿里云 IQS API Key（[申请地址](https://iqs.console.aliyun.com/)）
 
 ## 安装
 
