@@ -1,0 +1,32 @@
+[project]
+name = "knowledge-base-mcp"
+version = "0.1.0"
+description = "企业知识库 MCP Server - 本地文档/ATA/云知道/公网搜索"
+requires-python = ">=3.12"
+dependencies = [
+    "mcp>=1.0",
+    "httpx>=0.28",
+    "pydantic-settings>=2.7",
+    "beautifulsoup4>=4.12",
+    "watchdog>=6.0",
+]
+
+[project.optional-dependencies]
+documents = [
+    "pymupdf>=1.25",
+    "python-docx>=1.1",
+    "python-pptx>=1.0",
+    "openpyxl>=3.1",
+]
+internal = ["playwright>=1.50"]
+dev = ["pytest>=8.3", "pytest-asyncio>=0.25"]
+
+[tool.uv]
+index-url = "https://mirrors.aliyun.com/pypi/simple/"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
