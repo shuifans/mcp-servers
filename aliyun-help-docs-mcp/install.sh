@@ -3,25 +3,34 @@ set -e
 
 echo "=== aliyun-help-docs-mcp installer ==="
 
-# Check Python version
-if ! command -v python3 &> /dev/null; then
-    echo "❌ python3 not found"
-    exit 1
-fi
+# Prefer python3.12 (Homebrew), fallback to python3
+PYTHON_BIN=""
+for candidate in python3.12 python3; do
+    if command -v "$candidate" &> /dev/null; then
+        ver=$("$candidate" -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+        if [[ $(echo "$ver >= 3.10" | bc) -eq 1 ]]; then
+            PYTHON_BIN="$candidate"
+            break
+        fi
+    fi
+done
 
-PY_VERSION=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
-if [[ $(echo "$PY_VERSION < 3.10" | bc) -eq 1 ]]; then
-    echo "❌ Python 3.10+ required (found $PY_VERSION)"
+if [ -z "$PYTHON_BIN" ]; then
+    echo "❌ Python 3.10+ not found (install via: brew install python@3.12)"
     exit 1
 fi
-echo "✓ Python $PY_VERSION"
+echo "✓ Python $ver ($PYTHON_BIN)"
 
 # Create venv if not exists
 if [ ! -d ".venv" ]; then
     echo "Creating virtual environment..."
-    python3 -m venv .venv
+    "$PYTHON_BIN" -m venv .venv
 fi
 echo "✓ Virtual environment ready"
+
+# Upgrade pip first (needed for hatchling editable installs)
+echo "Upgrading pip..."
+.venv/bin/pip install --upgrade pip --quiet
 
 # Install package
 echo "Installing dependencies..."
