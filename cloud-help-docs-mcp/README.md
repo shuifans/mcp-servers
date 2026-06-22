@@ -58,7 +58,7 @@
 ### 安装
 
 ```bash
-cd cloud-help-docs-mcp
+cd ~/.claude/mcp-servers/cloud-help-docs-mcp
 python -m venv .venv
 source .venv/bin/activate
 pip install -e .
@@ -94,9 +94,9 @@ cloud-help-docs-mcp
 ### Claude Code
 
 ```bash
-claude mcp add cloud-help-docs-mcp -s project \
+claude mcp add cloud-help-docs-mcp -s user \
   -e IQS_API_KEY=<your_key> \
-  -- /path/to/cloud-help-docs-mcp/.venv/bin/python \
+  -- ~/.claude/mcp-servers/cloud-help-docs-mcp/.venv/bin/python \
      -m mcp_servers.cloud_help_docs.server
 ```
 
@@ -107,9 +107,9 @@ claude mcp add cloud-help-docs-mcp -s project \
   "mcpServers": {
     "cloud-help-docs-mcp": {
       "type": "stdio",
-      "command": "/absolute/path/to/cloud-help-docs-mcp/.venv/bin/python",
+      "command": "~/.claude/mcp-servers/cloud-help-docs-mcp/.venv/bin/python",
       "args": ["-m", "mcp_servers.cloud_help_docs.server"],
-      "cwd": "/absolute/path/to/cloud-help-docs-mcp",
+      "cwd": "~/.claude/mcp-servers/cloud-help-docs-mcp",
       "env": {
         "IQS_API_KEY": "your_api_key_here"
       }

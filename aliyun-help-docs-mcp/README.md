@@ -20,8 +20,7 @@
 ## 安装
 
 ```bash
-git clone <this-repo-url>
-cd aliyun-help-docs-mcp
+cd ~/.claude/mcp-servers/aliyun-help-docs-mcp
 python -m venv .venv
 source .venv/bin/activate
 pip install -e .
@@ -68,12 +67,12 @@ MCP 协议定义了三种客户端与服务端之间的传输方式：
 
 ```bash
 claude mcp add aliyun-help-docs-mcp \
-  -s project \
+  -s user \
   -e IQS_API_KEY=<your-api-key> \
   -e IQS_BASE_URL=https://cloud-iqs.aliyuncs.com \
   -e DOC_CACHE_PATH=./data/cache/doc_cache.sqlite \
   -e "URL_WHITELIST=help.aliyun.com,www.alibabacloud.com/help" \
-  -- /path/to/aliyun-help-docs-mcp/.venv/bin/python -m mcp_servers.aliyun_help_docs.server
+  -- ~/.claude/mcp-servers/aliyun-help-docs-mcp/.venv/bin/python -m mcp_servers.aliyun_help_docs.server
 ```
 
 或者手动编辑项目根目录的 `.mcp.json`：
@@ -83,9 +82,9 @@ claude mcp add aliyun-help-docs-mcp \
   "mcpServers": {
     "aliyun-help-docs-mcp": {
       "type": "stdio",
-      "command": "/path/to/aliyun-help-docs-mcp/.venv/bin/python",
+      "command": "~/.claude/mcp-servers/aliyun-help-docs-mcp/.venv/bin/python",
       "args": ["-m", "mcp_servers.aliyun_help_docs.server"],
-      "cwd": "/path/to/aliyun-help-docs-mcp",
+      "cwd": "~/.claude/mcp-servers/aliyun-help-docs-mcp",
       "env": {
         "IQS_API_KEY": "<your-api-key>",
         "IQS_BASE_URL": "https://cloud-iqs.aliyuncs.com",
@@ -108,7 +107,7 @@ claude mcp add aliyun-help-docs-mcp \
 | 配置项 | 值 |
 |--------|------|
 | **服务器类型** | **必须选择 `STDIO`**（不要选择 SSE 或 Streamable HTTP，当前版本不支持） |
-| **命令** | `/path/to/aliyun-help-docs-mcp/.venv/bin/python -m mcp_servers.aliyun_help_docs.server` |
+| **命令** | `~/.claude/mcp-servers/aliyun-help-docs-mcp/.venv/bin/python -m mcp_servers.aliyun_help_docs.server` |
 | **超时时间** | `60`（默认即可，网络较慢可设为 `120`） |
 
 环境变量：
@@ -117,7 +116,7 @@ claude mcp add aliyun-help-docs-mcp \
 |-----|-------|------|
 | `IQS_API_KEY` | 你的 IQS API Key | 是 |
 | `IQS_BASE_URL` | `https://cloud-iqs.aliyuncs.com` | 否 |
-| `DOC_CACHE_PATH` | `/absolute/path/to/data/cache/doc_cache.sqlite` | 否 |
+| `DOC_CACHE_PATH` | `~/.claude/mcp-servers/aliyun-help-docs-mcp/data/cache/doc_cache.sqlite` | 否 |
 | `URL_WHITELIST` | `help.aliyun.com,www.alibabacloud.com/help` | 否 |
 
 > **注意**：
@@ -133,19 +132,18 @@ claude mcp add aliyun-help-docs-mcp \
 请帮我配置 aliyun-help-docs-mcp 服务。
 
 步骤：
-1. 克隆仓库到本地：git clone <repo-url> /path/to/aliyun-help-docs-mcp
-2. 创建虚拟环境并安装依赖：
-   cd /path/to/aliyun-help-docs-mcp
+1. 创建虚拟环境并安装依赖：
+   cd ~/.claude/mcp-servers/aliyun-help-docs-mcp
    python3 -m venv .venv
    .venv/bin/pip install -e .
-3. 注册为本地 MCP Server：
+2. 注册为本地 MCP Server：
    claude mcp add aliyun-help-docs-mcp \
-     -s project \
+     -s user \
      -e IQS_API_KEY=<your-api-key> \
      -e IQS_BASE_URL=https://cloud-iqs.aliyuncs.com \
      -e DOC_CACHE_PATH=./data/cache/doc_cache.sqlite \
      -e "URL_WHITELIST=help.aliyun.com,www.alibabacloud.com/help" \
-     -- /path/to/aliyun-help-docs-mcp/.venv/bin/python -m mcp_servers.aliyun_help_docs.server
+     -- ~/.claude/mcp-servers/aliyun-help-docs-mcp/.venv/bin/python -m mcp_servers.aliyun_help_docs.server
 
 注意：command 必须使用虚拟环境中的 python 绝对路径，不能用系统 python。
 ```
