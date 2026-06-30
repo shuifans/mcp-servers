@@ -1,60 +1,39 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 echo "=== cloud-help-docs-mcp installer ==="
 
-# Prefer python3.12 (Homebrew), fallback to python3
-PYTHON_BIN=""
-for candidate in python3.12 python3; do
-    if command -v "$candidate" &> /dev/null; then
-        ver=$("$candidate" -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
-        if [[ $(echo "$ver >= 3.10" | bc) -eq 1 ]]; then
-            PYTHON_BIN="$candidate"
-            break
-        fi
-    fi
-done
+# Resolve to the script's own directory so the installer works from anywhere.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
-if [ -z "$PYTHON_BIN" ]; then
-    echo "❌ Python 3.10+ not found (install via: brew install python@3.12)"
+# Require uv (single source of truth for env + dependency resolution via uv.lock).
+if ! command -v uv &> /dev/null; then
+    echo "❌ uv not found."
+    echo "   Install it with one of:"
+    echo "     curl -LsSf https://astral.sh/uv/install.sh | sh"
+    echo "     brew install uv"
+    echo "     pip install uv"
     exit 1
 fi
-echo "✓ Python $ver ($PYTHON_BIN)"
+echo "✓ uv $(uv --version | awk '{print $2}')"
 
-# Create venv if not exists
-if [ ! -d ".venv" ]; then
-    echo "Creating virtual environment..."
-    "$PYTHON_BIN" -m venv .venv
-fi
-echo "✓ Virtual environment ready"
-
-# Upgrade pip first (needed for hatchling editable installs)
-echo "Upgrading pip..."
-.venv/bin/pip install --upgrade pip --quiet
-
-# Install package
-echo "Installing dependencies..."
-.venv/bin/pip install -e . --quiet
-echo "✓ Dependencies installed"
-
-# Create .env if not exists
-if [ ! -f ".env" ]; then
-    cp .env.example .env
-    echo ""
-    echo "⚠️  Please edit .env and set your IQS_API_KEY"
-    echo "   Get your API key at: https://iqs.console.aliyun.com/"
-    echo ""
-fi
+# Create the virtual environment and install locked dependencies (incl. dev extras).
+# uv reads requires-python from pyproject.toml and provisions a matching interpreter
+# if needed, so no manual Python version check / bc is required.
+echo "Syncing dependencies from uv.lock..."
+uv sync --extra dev
+echo "✓ Dependencies installed (.venv ready)"
 
 echo ""
 echo "=== Installation complete ==="
 echo ""
 echo "Next steps:"
-echo "1. Edit .env and add your IQS_API_KEY"
-echo "2. Register MCP server in Claude Code:"
+echo "1. Get your IQS API key at: https://iqs.console.aliyun.com/"
+echo "2. Register the MCP server in Claude Code (key passed via -e, never committed):"
 echo ""
-echo "   claude mcp add cloud-help-docs-mcp \\"
+echo "   claude mcp add cloud-help-docs-mcp -s user \\"
 echo "     -e IQS_API_KEY=<your_key> \\"
-echo "     -- $(pwd)/.venv/bin/python -m mcp_servers.cloud_help_docs.server"
+echo "     -- $SCRIPT_DIR/.venv/bin/python -m mcp_servers.cloud_help_docs.server"
 echo ""
 echo "Or restart Claude Code if already registered."

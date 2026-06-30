@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from types import TracebackType
 from typing import Any
 
 import httpx
@@ -64,7 +65,12 @@ class IQSClient:
     async def __aenter__(self) -> IQSClient:
         return self
 
-    async def __aexit__(self, exc_type, exc, tb) -> None:
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         await self.aclose()
 
     async def aclose(self) -> None:

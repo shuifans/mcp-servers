@@ -57,16 +57,27 @@
 
 ### 安装
 
+依赖管理统一使用 [uv](https://docs.astral.sh/uv/)。先 `git clone` 本仓库，然后：
+
 ```bash
 cd ~/.claude/mcp-servers/cloud-help-docs-mcp
-python -m venv .venv
-source .venv/bin/activate
-pip install -e .
+./install.sh          # 内部执行 uv sync（自动创建 .venv 并按 uv.lock 安装）
 ```
+
+或手动：
+
+```bash
+uv sync               # 仅运行时依赖
+uv sync --extra dev   # 含测试/lint 工具
+```
+
+> 未安装 uv？`curl -LsSf https://astral.sh/uv/install.sh | sh` 或 `brew install uv`。
 
 ### 配置
 
-复制 `.env.example` 为 `.env` 并填入 IQS API Key：
+`IQS_API_KEY` 推荐在 MCP 注册时通过 `-e` 传入（见下方「MCP 注册」），无需落盘。
+如需本地直接运行，可复制 `.env.example` 为 `.env` 填入 key —— `.env` 已被 `.gitignore`
+忽略，**切勿提交**：
 
 ```bash
 cp .env.example .env
@@ -84,9 +95,9 @@ cp .env.example .env
 ### 运行
 
 ```bash
-python -m mcp_servers.cloud_help_docs.server
-# 或
-cloud-help-docs-mcp
+uv run python -m mcp_servers.cloud_help_docs.server
+# 或（激活环境后）
+.venv/bin/cloud-help-docs-mcp
 ```
 
 ## MCP 注册
@@ -102,6 +113,10 @@ claude mcp add cloud-help-docs-mcp -s user \
 
 ### .mcp.json
 
+> ⚠️ **安全提示**：切勿把真实 `IQS_API_KEY` 明文写进 `.mcp.json` 并提交到版本库。
+> 下面的 `${IQS_API_KEY}` 会从当前 shell 环境读取，请先 `export IQS_API_KEY=<your_key>`
+> （或写入不会被提交的本地 `.env`）。
+
 ```json
 {
   "mcpServers": {
@@ -111,7 +126,7 @@ claude mcp add cloud-help-docs-mcp -s user \
       "args": ["-m", "mcp_servers.cloud_help_docs.server"],
       "cwd": "~/.claude/mcp-servers/cloud-help-docs-mcp",
       "env": {
-        "IQS_API_KEY": "your_api_key_here"
+        "IQS_API_KEY": "${IQS_API_KEY}"
       }
     }
   }
@@ -140,6 +155,10 @@ mcp_servers/cloud_help_docs/
 ### 搜索流程
 
 1. **search_cloud_docs** → IQS UnifiedSearch（`site` 参数按 provider 切换）→ URL 白名单过滤 → 返回候选列表
+
+> 白名单按 **host 精确匹配**（不含子域），这是有意的安全取舍：能防越权抓取，但也会过滤掉
+> 区域子域（如 `repost.aws`、`xxx.help.aliyun.com`）。如需放行，请在 `providers.py` 的
+> 对应 `whitelist` 中显式添加。
 2. **read_cloud_doc** → URL 白名单验证 → SQLite 缓存检查 → IQS ReadPageBasic → Scrape 回退（< 200 字符时）→ 写入缓存
 3. **retrieve_cloud_docs** → search + read（并发，Semaphore=4）→ EvidenceBuilder 摘录切片 → 返回 Evidence[]
 

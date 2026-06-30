@@ -33,23 +33,62 @@ def _preprocess_query(query: str, product: str | None, site_filter: str) -> str:
     return q
 
 
+# Candidate field names for each output key, in priority order. IQS responses
+# (and the heterogeneous payloads we accept) name these inconsistently, so we
+# probe several aliases rather than hard-depend on one. Keep this aligned with
+# the actual UnifiedSearch ``pageItems`` shape — verify against a live response
+# (LOG_LEVEL=DEBUG dumps the raw ``raw`` list) and add aliases as needed.
+_URL_KEYS = ("url", "link", "source_url", "sourceUrl", "pageUrl", "displayLink")
+_TITLE_KEYS = ("title", "name", "htmlTitle", "pageTitle")
+_SNIPPET_KEYS = ("snippet", "summary", "description", "mainText", "htmlSnippet", "abstract")
+# Relevance score: with ``rerankScore: True`` IQS typically returns ``rerankScore``;
+# fall back to other common spellings and a nested ``scoreInfo``.
+_SCORE_KEYS = ("score", "rerankScore", "relevanceScore", "rerank_score", "relevance_score")
+
+
+def _first_str(item: dict[str, Any], keys: tuple[str, ...]) -> str:
+    for key in keys:
+        value = item.get(key)
+        if value:
+            return str(value)
+    return ""
+
+
+def _coerce_score(value: Any) -> float | None:
+    if isinstance(value, bool):  # avoid bool being treated as int
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value.strip())
+        except ValueError:
+            return None
+    return None
+
+
+def _extract_score(item: dict[str, Any]) -> float | None:
+    for key in _SCORE_KEYS:
+        score = _coerce_score(item.get(key))
+        if score is not None:
+            return score
+    nested = item.get("scoreInfo")
+    if isinstance(nested, dict):
+        for key in _SCORE_KEYS:
+            score = _coerce_score(nested.get(key))
+            if score is not None:
+                return score
+    return None
+
+
 def _normalize_result(item: dict[str, Any]) -> dict[str, Any]:
     """Normalize an IQS search hit into a stable shape."""
 
-    url = item.get("url") or item.get("link") or item.get("source_url") or ""
-    title = item.get("title") or item.get("name") or ""
-    snippet = item.get("snippet") or item.get("summary") or item.get("description") or ""
-    score = item.get("score")
-    if isinstance(score, str):
-        try:
-            score = float(score)
-        except ValueError:
-            score = None
     return {
-        "url": str(url),
-        "title": str(title),
-        "snippet": str(snippet),
-        "score": float(score) if isinstance(score, (int, float)) else None,
+        "url": _first_str(item, _URL_KEYS),
+        "title": _first_str(item, _TITLE_KEYS),
+        "snippet": _first_str(item, _SNIPPET_KEYS),
+        "score": _extract_score(item),
     }
 
 

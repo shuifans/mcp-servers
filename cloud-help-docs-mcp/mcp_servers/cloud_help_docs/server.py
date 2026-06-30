@@ -19,6 +19,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+from importlib.metadata import PackageNotFoundError, version
 from typing import Any
 
 from mcp.server import Server
@@ -34,10 +35,18 @@ from .tools.search import search_cloud_docs
 logger = logging.getLogger(__name__)
 
 SERVER_NAME = "cloud-help-docs-mcp"
-SERVER_VERSION = "0.1.0"
+
+try:
+    # Single source of truth: the version declared in pyproject.toml.
+    SERVER_VERSION = version("cloud-help-docs-mcp")
+except PackageNotFoundError:  # pragma: no cover - running from a non-installed tree
+    SERVER_VERSION = "0.0.0+unknown"
 
 
-# ---- input schemas (kept in sync with schemas/input_schemas.json) ----------
+# ---- input schemas ---------------------------------------------------------
+# These inline definitions are authoritative (they are what the MCP SDK serves).
+# ``schemas/*.json`` are human-readable reference specs only and are NOT loaded
+# at runtime; update them alongside changes here if you rely on them.
 
 _PROVIDER_DESCRIPTION = (
     "Cloud provider name. Supported values: "
@@ -205,11 +214,11 @@ def build_server() -> Server:
 
     server: Server = Server(SERVER_NAME)
 
-    @server.list_tools()
+    @server.list_tools()  # type: ignore[no-untyped-call, untyped-decorator]
     async def _list_tools() -> list[Tool]:
         return _tool_definitions()
 
-    @server.call_tool()
+    @server.call_tool()  # type: ignore[untyped-decorator]
     async def _call_tool(name: str, arguments: dict[str, Any] | None) -> list[TextContent]:
         try:
             result = await _dispatch(name, arguments)
